@@ -2,10 +2,7 @@ package spark.customerrorpages;
 
 import java.io.IOException;
 
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import spark.CustomErrorPages;
 import spark.Spark;
@@ -22,6 +19,7 @@ public class CustomErrorPagesTest {
     private static final String HELLO_WORLD = "hello world!";
     public static final String APPLICATION_JSON = "application/json";
     private static final String QUERY_PARAM_KEY = "qparkey";
+    private static final String EXCEPTION_MAPPER_MESSAGE = "exception mapper message";
 
     static SparkTestUtil testUtil;
 
@@ -40,8 +38,6 @@ public class CustomErrorPagesTest {
             throw new Exception("");
         });
 
-        notFound(CUSTOM_NOT_FOUND);
-
         internalServerError((request, response) -> {
             if (request.queryParams(QUERY_PARAM_KEY) != null) {
                 throw new Exception();
@@ -51,6 +47,12 @@ public class CustomErrorPagesTest {
         });
 
         Spark.awaitInitialization();
+    }
+
+    @Before
+    public void before() {
+        notFound(CUSTOM_NOT_FOUND);
+        Spark.removeException(Exception.class);
     }
 
     @Test
@@ -80,6 +82,33 @@ public class CustomErrorPagesTest {
         SparkTestUtil.UrlResponse response = testUtil.doMethod("GET", "/raiseinternal?" + QUERY_PARAM_KEY + "=sumthin", null);
         Assert.assertEquals(500, response.status);
         Assert.assertEquals(CustomErrorPages.INTERNAL_ERROR, response.body);
+    }
+
+    @Test
+    public void testCustomInternalFailingRouteWithExceptionMapper() throws Exception {
+        Spark.exception(Exception.class, (e, request, response) -> {
+            response.status(501);
+            response.body(EXCEPTION_MAPPER_MESSAGE);
+        });
+
+        SparkTestUtil.UrlResponse response = testUtil.doMethod("GET", "/raiseinternal?" + QUERY_PARAM_KEY + "=sumthin", null);
+        Assert.assertEquals(501, response.status);
+        Assert.assertEquals(EXCEPTION_MAPPER_MESSAGE, response.body);
+    }
+
+    @Test
+    public void testCustomNotFoundFailingRouteWithExceptionMapper() throws Exception {
+        Spark.notFound((request, response) -> {
+            throw new Exception();
+        });
+        Spark.exception(Exception.class, (e, request, response) -> {
+            response.status(501);
+            response.body(EXCEPTION_MAPPER_MESSAGE);
+        });
+
+        SparkTestUtil.UrlResponse response = testUtil.doMethod("GET", "/othernotmapped", null);
+        Assert.assertEquals(501, response.status);
+        Assert.assertEquals(EXCEPTION_MAPPER_MESSAGE, response.body);
     }
 
 }
