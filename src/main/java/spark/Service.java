@@ -676,10 +676,11 @@ public final class Service extends Routable {
     //////////////////////////////////////////////////
 
     /**
-     * Maps an exception handler to be executed when an exception occurs during routing
+     * Maps the given handler and <b>all of its subclasses</b>to the provided exception type. If a handler was
+     * already registered to the same type, the handler is overwritten.
      *
-     * @param exceptionClass the exception class
-     * @param handler        The handler
+     * @param exceptionClass Type of exception
+     * @param handler        The handler to map to the exception
      */
     public synchronized <T extends Exception> void exception(Class<T> exceptionClass, ExceptionHandler<? super T> handler) {
         // wrap
@@ -691,6 +692,16 @@ public final class Service extends Routable {
         };
 
         exceptionMapper.map(exceptionClass, wrapper);
+    }
+
+    /**
+     * Removes the handler from the provided exception type and <b>from all superclasses</b>.
+     * If no handler is registered to the given type, nothing happens.
+     *
+     * @param exceptionClass Type of exception
+     */
+    public <T extends Exception> void removeException(Class<T> exceptionClass) {
+        exceptionMapper.remove(exceptionClass);
     }
 
     //////////////////////////////////////////////////

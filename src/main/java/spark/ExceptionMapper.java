@@ -37,7 +37,7 @@ public class ExceptionMapper {
      * @return servlet instance
      */
     public synchronized static ExceptionMapper getServletInstance() {
-        if (servletInstance == null) {
+        if(servletInstance == null) {
             servletInstance = new ExceptionMapper();
         }
         return servletInstance;
@@ -56,14 +56,29 @@ public class ExceptionMapper {
     }
 
     /**
-     * Maps the given handler to the provided exception type. If a handler was already registered to the same type, the
-     * handler is overwritten.
+     * Maps the given handler and <b>all of its subclasses</b>to the provided exception type. If a handler was
+     * already registered to the same type, the handler is overwritten.
      *
      * @param exceptionClass Type of exception
-     * @param handler        Handler to map to exception
+     * @param handler        The handler to map to the exception
      */
     public void map(Class<? extends Exception> exceptionClass, ExceptionHandlerImpl handler) {
         this.exceptionMap.put(exceptionClass, handler);
+    }
+
+    /**
+     * Removes the handler from the provided exception type and <b>from all superclasses</b>.
+     * If no handler is registered for the given type, nothing happens.
+     *
+     * @param exceptionClass Type of exception
+     */
+    public void remove(Class<? extends Exception> exceptionClass) {
+        exceptionMap.remove(exceptionClass);
+
+        Class<?> superclass = exceptionClass.getSuperclass();
+        if(superclass != null && Exception.class.isAssignableFrom(superclass)) {
+            remove((Class<? extends Exception>) superclass);
+        }
     }
 
     /**
@@ -75,12 +90,12 @@ public class ExceptionMapper {
     public ExceptionHandlerImpl getHandler(Class<? extends Exception> exceptionClass) {
         // If the exception map does not contain the provided exception class, it might
         // still be that a superclass of the exception class is.
-        if (!this.exceptionMap.containsKey(exceptionClass)) {
+        if(!this.exceptionMap.containsKey(exceptionClass)) {
 
             Class<?> superclass = exceptionClass.getSuperclass();
             do {
                 // Is the superclass mapped?
-                if (this.exceptionMap.containsKey(superclass)) {
+                if(this.exceptionMap.containsKey(superclass)) {
                     // Use the handler for the mapped superclass, and cache handler
                     // for this exception class
                     ExceptionHandlerImpl handler = this.exceptionMap.get(superclass);
