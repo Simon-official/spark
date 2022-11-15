@@ -2,6 +2,47 @@
 [![](https://img.shields.io/github/license/perwendel/spark.svg)](./LICENSE)
 [![](https://img.shields.io/maven-central/v/com.sparkjava/spark-core.svg)](http://mvnrepository.com/artifact/com.sparkjava/spark-core)
 
+Why this fork exists
+==============================================
+
+The [official repository](https://github.com/perwendel/spark) doesn't seem to be actively maintained anymore, so I decided to add my personal additions and changes to this fork instead of opening PRs. I will try to keep this fork up to date and maybe even add my changes to the official repository one day.
+
+(unofficial) Download
+---------------
+[![](https://jitpack.io/v/Simon-official/spark.svg)](https://jitpack.io/#Simon-official/spark)
+
+The fork is distributed via [Jitpack](https://jitpack.io/#Simon-official/spark).
+
+Make sure to replace `version` with a version number or a commit hash. 
+
+Gradle:
+```gradle
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    implementation 'com.github.Simon-official:spark:version'
+}
+```
+
+Maven:
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+
+<dependency>
+    <groupId>com.github.Simon-official</groupId>
+    <artifactId>spark</artifactId>
+    <version>version</version>
+</dependency>
+```
+
+
 Spark - a tiny web framework for Java 8
 ==============================================
 
