@@ -1,4 +1,4 @@
-name: Spark Framework CI
+name: Maven Tests
 
 on:
   push:

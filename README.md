@@ -1,6 +1,6 @@
-[![](https://img.shields.io/travis/perwendel/spark.svg)](https://travis-ci.org/perwendel/spark)
 [![](https://img.shields.io/github/license/perwendel/spark.svg)](./LICENSE)
-[![](https://img.shields.io/maven-central/v/com.sparkjava/spark-core.svg)](http://mvnrepository.com/artifact/com.sparkjava/spark-core)
+[![](https://jitpack.io/v/Simon-official/spark.svg)](https://jitpack.io/#Simon-official/spark)
+[![](https://github.com/Simon-official/spark/actions/workflows/ci.yml/badge.svg)](https://github.com/Simon-official/spark/actions/workflows/ci.yml)
 
 Why this fork exists
 ==============================================
@@ -9,7 +9,6 @@ The [official repository](https://github.com/perwendel/spark) doesn't seem to be
 
 (unofficial) Download
 ---------------
-[![](https://jitpack.io/v/Simon-official/spark.svg)](https://jitpack.io/#Simon-official/spark)
 
 The fork is distributed via [Jitpack](https://jitpack.io/#Simon-official/spark).
 
