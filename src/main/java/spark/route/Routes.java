@@ -4,7 +4,7 @@
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
- *  
+ *
  *
  *      http://www.apache.org/licenses/LICENSE-2.0
  *
@@ -16,21 +16,17 @@
  */
 package spark.route;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import spark.FilterImpl;
 import spark.RouteImpl;
 import spark.routematch.RouteMatch;
 import spark.utils.MimeParse;
 import spark.utils.StringUtils;
 
+import java.util.*;
+
 /**
  * Holds the routes and performs matching from HTTP requests to routes.
- * Works as Sinatra's, ie. if there are more than one match the one that was mapped first is chosen.
+ * If there are more than one match with the same {@link FilterPriority}, the one that was mapped first is chosen.
  *
  * @author Per Wendel
  */
@@ -59,7 +55,7 @@ public class Routes {
      * @param route      the route to add
      */
     public void add(HttpMethod httpMethod, RouteImpl route) {
-        add(httpMethod, route.getPath() , route.getAcceptType(), route);
+        add(httpMethod, route.getPath(), route.getAcceptType(), route, FilterPriority.normal());
     }
 
     /**
@@ -67,9 +63,10 @@ public class Routes {
      *
      * @param httpMethod the http-method of the route
      * @param filter     the filter to add
+     * @param priority   the priority of the filter
      */
-    public void add(HttpMethod httpMethod, FilterImpl filter) {
-        add(httpMethod, filter.getPath() , filter.getAcceptType(), filter);
+    public void add(HttpMethod httpMethod, FilterImpl filter, FilterPriority priority) {
+        add(httpMethod, filter.getPath(), filter.getAcceptType(), filter, priority);
     }
 
     /**
@@ -99,10 +96,10 @@ public class Routes {
         List<RouteEntry> routeEntries = findTargetsForRequestedRoute(httpMethod, path);
 
         for (RouteEntry routeEntry : routeEntries) {
-            if (acceptType != null) {
+            if(acceptType != null) {
                 String bestMatch = MimeParse.bestMatch(Arrays.asList(routeEntry.acceptedType), acceptType);
 
-                if (routeWithGivenAcceptType(bestMatch)) {
+                if(routeWithGivenAcceptType(bestMatch)) {
                     matchSet.add(new RouteMatch(routeEntry.target, routeEntry.path, path, acceptType, httpMethod));
                 }
             } else {
@@ -142,16 +139,17 @@ public class Routes {
      * @param path       the route path
      * @param httpMethod the http method
      * @return <tt>true</tt> if this a matching route has been previously routed
+     *
      * @throws IllegalArgumentException if <tt>path</tt> is null or blank or if <tt>httpMethod</tt> is null, blank
      *                                  or an invalid HTTP method
      * @since 2.2
      */
     public boolean remove(String path, String httpMethod) {
-        if (StringUtils.isEmpty(path)) {
+        if(StringUtils.isEmpty(path)) {
             throw new IllegalArgumentException("path cannot be null or blank");
         }
 
-        if (StringUtils.isEmpty(httpMethod)) {
+        if(StringUtils.isEmpty(httpMethod)) {
             throw new IllegalArgumentException("httpMethod cannot be null or blank");
         }
 
@@ -167,11 +165,12 @@ public class Routes {
      *
      * @param path the route path
      * @return <tt>true</tt> if this a matching route has been previously routed
+     *
      * @throws java.lang.IllegalArgumentException if <tt>path</tt> is null or blank
      * @since 2.2
      */
     public boolean remove(String path) {
-        if (StringUtils.isEmpty(path)) {
+        if(StringUtils.isEmpty(path)) {
             throw new IllegalArgumentException("path cannot be null or blank");
         }
 
@@ -182,15 +181,17 @@ public class Routes {
     // PRIVATE METHODS
     //////////////////////////////////////////////////
 
-    private void add(HttpMethod method, String url, String acceptedType, Object target) {
+    private void add(HttpMethod method, String url, String acceptedType, Object target, FilterPriority priority) {
         RouteEntry entry = new RouteEntry();
         entry.httpMethod = method;
         entry.path = url;
         entry.target = target;
         entry.acceptedType = acceptedType;
+        entry.priority = priority;
         LOG.debug("Adds route: " + entry);
         // Adds to end of list
         routes.add(entry);
+        routes.sort(Comparator.comparing(r -> r.priority));
     }
 
     //can be cached? I don't think so.
@@ -198,7 +199,7 @@ public class Routes {
         Map<String, RouteEntry> acceptedTypes = new HashMap<>();
 
         for (RouteEntry routeEntry : routes) {
-            if (!acceptedTypes.containsKey(routeEntry.acceptedType)) {
+            if(!acceptedTypes.containsKey(routeEntry.acceptedType)) {
                 acceptedTypes.put(routeEntry.acceptedType, routeEntry);
             }
         }
@@ -213,7 +214,7 @@ public class Routes {
     private List<RouteEntry> findTargetsForRequestedRoute(HttpMethod httpMethod, String path) {
         List<RouteEntry> matchSet = new ArrayList<RouteEntry>();
         for (RouteEntry entry : routes) {
-            if (entry.matches(httpMethod, path)) {
+            if(entry.matches(httpMethod, path)) {
                 matchSet.add(entry);
             }
         }
@@ -222,17 +223,17 @@ public class Routes {
 
     // TODO: I believe this feature has impacted performance. Optimization?
     private RouteEntry findTargetWithGivenAcceptType(List<RouteEntry> routeMatches, String acceptType) {
-        if (acceptType != null && routeMatches.size() > 0) {
+        if(acceptType != null && routeMatches.size() > 0) {
             Map<String, RouteEntry> acceptedMimeTypes = getAcceptedMimeTypes(routeMatches);
             String bestMatch = MimeParse.bestMatch(acceptedMimeTypes.keySet(), acceptType);
 
-            if (routeWithGivenAcceptType(bestMatch)) {
+            if(routeWithGivenAcceptType(bestMatch)) {
                 return acceptedMimeTypes.get(bestMatch);
             } else {
                 return null;
             }
         } else {
-            if (routeMatches.size() > 0) {
+            if(routeMatches.size() > 0) {
                 return routeMatches.get(0);
             }
         }
@@ -246,12 +247,12 @@ public class Routes {
         for (RouteEntry routeEntry : routes) {
             HttpMethod httpMethodToMatch = httpMethod;
 
-            if (httpMethod == null) {
+            if(httpMethod == null) {
                 // Use the routeEntry's HTTP method if none was given, so that only path is used to match.
                 httpMethodToMatch = routeEntry.httpMethod;
             }
 
-            if (routeEntry.matches(httpMethodToMatch, path)) {
+            if(routeEntry.matches(httpMethodToMatch, path)) {
                 LOG.debug("Removing path {}", path, httpMethod == null ? "" : " with HTTP method " + httpMethod);
 
                 forRemoval.add(routeEntry);
@@ -281,13 +282,13 @@ public class Routes {
                 method = HttpMethod.valueOf(httpMethod);
             } catch (IllegalArgumentException e) {
                 LOG.error("The @Route value: "
-                              + route
-                              + " has an invalid HTTP method part: "
-                              + httpMethod
-                              + ".");
+                    + route
+                    + " has an invalid HTTP method part: "
+                    + httpMethod
+                    + ".");
                 return;
             }
-            add(method, url, acceptType, target);
+            add(method, url, acceptType, target, FilterPriority.normal());
         } catch (Exception e) {
             LOG.error("The @Route value: " + route + " is not in the correct format", e);
         }

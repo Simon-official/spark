@@ -31,6 +31,7 @@ class RouteEntry {
     String path;
     String acceptedType;
     Object target;
+    FilterPriority priority;
 
     RouteEntry() {
     }
@@ -40,6 +41,7 @@ class RouteEntry {
         this.path = entry.path;
         this.acceptedType = entry.acceptedType;
         this.target = entry.target;
+        this.priority = entry.priority;
     }
 
     boolean matches(HttpMethod httpMethod, String path) {

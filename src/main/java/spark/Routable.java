@@ -17,6 +17,7 @@
 package spark;
 
 import spark.route.HttpMethod;
+import spark.route.FilterPriority;
 import spark.utils.SparkUtils;
 
 /**
@@ -43,7 +44,7 @@ abstract class Routable {
      * @param httpMethod the HTTP method
      * @param filter     the route implementation
      */
-    protected abstract void addFilter(HttpMethod httpMethod, FilterImpl filter);
+    protected abstract void addFilter(HttpMethod httpMethod, FilterImpl filter, FilterPriority priority);
 
     @Deprecated
     protected abstract void addFilter(String httpMethod, FilterImpl filter);
@@ -142,24 +143,50 @@ abstract class Routable {
     }
 
     /**
-     * Maps a filter to be executed before any matching routes
+     * Maps a filter to be executed before any matching routes. <br>
+     * The priority will be {@link FilterPriority#normal()}.
      *
-     * @param path   the path
+     * @param path   The path
      * @param filter The filter
      */
     public void before(String path, Filter filter) {
-        addFilter(HttpMethod.before, FilterImpl.create(path, filter));
+        before(path, filter, FilterPriority.normal());
+    }
+
+    /**
+     * Maps a filter to be executed before any matching routes
+     *
+     * @param path     The path
+     * @param filter   The filter
+     * @param priority The priority of the filter
+     */
+    public void before(String path, Filter filter, FilterPriority priority) {
+        addFilter(HttpMethod.before, FilterImpl.create(path, filter), priority);
+    }
+
+
+    /**
+     * Maps a filter to be executed after any matching routes. <br>
+     * The priority will be {@link FilterPriority#normal()}.
+     *
+     * @param path   The path
+     * @param filter The filter
+     */
+    public void after(String path, Filter filter) {
+        after(path, filter, FilterPriority.normal());
     }
 
     /**
      * Maps a filter to be executed after any matching routes
      *
-     * @param path   the path
-     * @param filter The filter
+     * @param path     The path
+     * @param filter   The filter
+     * @param priority The priority of the filter
      */
-    public void after(String path, Filter filter) {
-        addFilter(HttpMethod.after, FilterImpl.create(path, filter));
+    public void after(String path, Filter filter, FilterPriority priority) {
+        addFilter(HttpMethod.after, FilterImpl.create(path, filter), priority);
     }
+
 
     //////////////////////////////////////////////////
     // BEGIN route/filter mapping with accept type
@@ -266,61 +293,131 @@ abstract class Routable {
 
 
     /**
-     * Maps a filter to be executed before any matching routes
+     * Maps a filter to be executed before any matching routes. <br>
+     * The priority will be {@link FilterPriority#normal()}.
      *
      * @param filter The filter
      */
     public void before(Filter filter) {
-        addFilter(HttpMethod.before, FilterImpl.create(SparkUtils.ALL_PATHS, filter));
-    }
-
-    /**
-     * Maps a filter to be executed after any matching routes
-     *
-     * @param filter The filter
-     */
-    public void after(Filter filter) {
-        addFilter(HttpMethod.after, FilterImpl.create(SparkUtils.ALL_PATHS, filter));
+        before(filter, FilterPriority.normal());
     }
 
     /**
      * Maps a filter to be executed before any matching routes
      *
-     * @param path       the path
-     * @param acceptType the accept type
-     * @param filter     The filter
+     * @param filter   The filter
+     * @param priority The priority of the filter
      */
-    public void before(String path, String acceptType, Filter filter) {
-        addFilter(HttpMethod.before, FilterImpl.create(path, acceptType, filter));
+    public void before(Filter filter, FilterPriority priority) {
+        addFilter(HttpMethod.before, FilterImpl.create(SparkUtils.ALL_PATHS, filter), priority);
+    }
+
+    /**
+     * Maps a filter to be executed after any matching routes. <br>
+     * The priority will be {@link FilterPriority#normal()}.
+     *
+     * @param filter The filter
+     */
+    public void after(Filter filter) {
+        after(filter, FilterPriority.normal());
     }
 
     /**
      * Maps a filter to be executed after any matching routes
      *
-     * @param path       the path
-     * @param acceptType the accept type
-     * @param filter     The filter
+     * @param filter   The filter
+     * @param priority The priority of the filter
      */
-    public void after(String path, String acceptType, Filter filter) {
-        addFilter(HttpMethod.after, FilterImpl.create(path, acceptType, filter));
+    public void after(Filter filter, FilterPriority priority) {
+        addFilter(HttpMethod.after, FilterImpl.create(SparkUtils.ALL_PATHS, filter), priority);
     }
 
     /**
-     * Maps a filter to be executed after any matching routes even if the route throws any exception
+     * Maps a filter to be executed before any matching routes. <br>
+     * The priority will be {@link FilterPriority#normal()}.
+     *
+     * @param path       The path
+     * @param acceptType The accept type
+     * @param filter     The filter
+     */
+    public void before(String path, String acceptType, Filter filter) {
+        before(path, acceptType, filter, FilterPriority.normal());
+    }
+
+    /**
+     * Maps a filter to be executed before any matching routes
+     *
+     * @param path       The path
+     * @param acceptType The accept type
+     * @param filter     The filter
+     * @param priority   The priority of the filter
+     */
+    public void before(String path, String acceptType, Filter filter, FilterPriority priority) {
+        addFilter(HttpMethod.before, FilterImpl.create(path, acceptType, filter), priority);
+    }
+
+    /**
+     * Maps a filter to be executed after any matching routes. <br>
+     * The priority will be {@link FilterPriority#normal()}.
+     *
+     * @param path       The path
+     * @param acceptType The accept type
+     * @param filter     The filter
+     */
+    public void after(String path, String acceptType, Filter filter) {
+        after(path, acceptType, filter, FilterPriority.normal());
+    }
+
+    /**
+     * Maps a filter to be executed after any matching routes
+     *
+     * @param path       The path
+     * @param acceptType The accept type
+     * @param filter     The filter
+     * @param priority   The priority of the filter
+     */
+    public void after(String path, String acceptType, Filter filter, FilterPriority priority) {
+        addFilter(HttpMethod.after, FilterImpl.create(path, acceptType, filter), priority);
+    }
+
+    /**
+     * Maps a filter to be executed after any matching routes even if the route throws any exception. <br>
+     * The priority will be {@link FilterPriority#normal()}.
      *
      * @param filter The filter
      */
     public void afterAfter(Filter filter) {
-        addFilter(HttpMethod.afterafter, FilterImpl.create(SparkUtils.ALL_PATHS, filter));
+        afterAfter(filter, FilterPriority.normal());
     }
 
     /**
      * Maps a filter to be executed after any matching routes even if the route throws any exception
      *
+     * @param filter   The filter
+     * @param priority The priority of the filter
+     */
+    public void afterAfter(Filter filter, FilterPriority priority) {
+        addFilter(HttpMethod.afterafter, FilterImpl.create(SparkUtils.ALL_PATHS, filter), priority);
+    }
+
+    /**
+     * Maps a filter to be executed after any matching routes even if the route throws any exception. <br>
+     * The priority will be {@link FilterPriority#normal()}.
+     *
      * @param filter The filter
      */
     public void afterAfter(String path, Filter filter) {
-        addFilter(HttpMethod.afterafter, FilterImpl.create(path, filter));
+        afterAfter(path, filter, FilterPriority.normal());
+    }
+
+    /**
+     * Maps a filter to be executed after any matching routes even if the route throws any exception
+     *
+     * @param filter   The filter
+     * @param priority The priority of the filter
+     */
+    public void afterAfter(String path, Filter filter, FilterPriority priority) {
+        addFilter(HttpMethod.afterafter, FilterImpl.create(path, filter), priority);
     }
 
     //////////////////////////////////////////////////
@@ -804,7 +901,7 @@ abstract class Routable {
      * @return ResponseTransformerRouteImpl or RouteImpl
      */
     private RouteImpl createRouteImpl(String path, String acceptType, Route route) {
-        if (defaultResponseTransformer != null) {
+        if(defaultResponseTransformer != null) {
             return ResponseTransformerRouteImpl.create(path, acceptType, route, defaultResponseTransformer);
         }
         return RouteImpl.create(path, acceptType, route);
@@ -818,7 +915,7 @@ abstract class Routable {
      * @return ResponseTransformerRouteImpl or RouteImpl
      */
     private RouteImpl createRouteImpl(String path, Route route) {
-        if (defaultResponseTransformer != null) {
+        if(defaultResponseTransformer != null) {
             return ResponseTransformerRouteImpl.create(path, route, defaultResponseTransformer);
         }
         return RouteImpl.create(path, route);
@@ -826,8 +923,6 @@ abstract class Routable {
 
     /**
      * Sets default response transformer
-     *
-     * @param transformer
      */
     public void defaultResponseTransformer(ResponseTransformer transformer) {
         defaultResponseTransformer = transformer;

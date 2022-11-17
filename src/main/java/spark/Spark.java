@@ -16,6 +16,7 @@
  */
 package spark;
 
+import spark.route.FilterPriority;
 import spark.routematch.RouteMatch;
 
 import java.util.List;
@@ -178,48 +179,96 @@ public class Spark {
     }
 
     /**
-     * Maps a filter to be executed before any matching routes
+     * Maps a filter to be executed before any matching routes. <br>
+     * The priority will be {@link FilterPriority#normal()}.
      *
-     * @param path   the path
+     * @param path   The path
      * @param filter The filter
      */
     public static void before(String path, Filter filter) {
-        getInstance().before(path, filter);
+        before(path, filter, FilterPriority.normal());
+    }
+
+    /**
+     * Maps a filter to be executed before any matching routes
+     *
+     * @param path     The path
+     * @param filter   The filter
+     * @param priority The priority of the filter
+     */
+    public static void before(String path, Filter filter, FilterPriority priority) {
+        getInstance().before(path, filter, priority);
+    }
+
+    /**
+     * Maps an array of filters to be executed before any matching routes. <br>
+     * The priority will be {@link FilterPriority#normal()}.
+     *
+     * @param path    The path
+     * @param filters The filters
+     */
+    public static void before(String path, Filter... filters) {
+        before(path, FilterPriority.normal(), filters);
     }
 
     /**
      * Maps an array of filters to be executed before any matching routes
      *
-     * @param path    the path
-     * @param filters the filters
+     * @param path     The path
+     * @param priority The priority of the filter
+     * @param filters  The filters
      */
-
-    public static void before(String path, Filter... filters) {
+    public static void before(String path, FilterPriority priority, Filter... filters) {
         for (Filter filter : filters) {
-            getInstance().before(path, filter);
+            getInstance().before(path, filter, priority);
         }
+    }
+
+    /**
+     * Maps a filter to be executed after any matching routes. <br>
+     * The priority will be {@link FilterPriority#normal()}.
+     *
+     * @param path   The path
+     * @param filter The filter
+     */
+    public static void after(String path, Filter filter) {
+        after(path, filter, FilterPriority.normal());
     }
 
     /**
      * Maps a filter to be executed after any matching routes
      *
-     * @param path   the path
-     * @param filter The filter
+     * @param path     The path
+     * @param filter   The filter
+     * @param priority The priority of the filter
      */
-    public static void after(String path, Filter filter) {
-        getInstance().after(path, filter);
+    public static void after(String path, Filter filter, FilterPriority priority) {
+        getInstance().after(path, filter, priority);
+    }
+
+    /**
+     * Maps an array of filters to be executed after any matching routes. <br>
+     * The priority will be {@link FilterPriority#normal()}.
+     *
+     * @param path    The path
+     * @param filters The filters
+     */
+
+    public static void after(String path, Filter... filters) {
+        after(path, FilterPriority.normal(), filters);
     }
 
     /**
      * Maps an array of filters to be executed after any matching routes
      *
-     * @param path    the path
-     * @param filters The filters
+     * @param path     The path
+     * @param priority The priority of the filter
+     * @param filters  The filters
      */
 
-    public static void after(String path, Filter... filters) {
+    public static void after(String path, FilterPriority priority, Filter... filters) {
         for (Filter filter : filters) {
-            getInstance().after(path, filter);
+            getInstance().after(path, filter, priority);
         }
     }
 
@@ -328,71 +377,142 @@ public class Spark {
 
 
     /**
-     * Maps one or many filters to be executed before any matching routes
+     * Maps one or many filters to be executed before any matching routes. <br>
+     * The priority will be {@link FilterPriority#normal()}.
      *
      * @param filters The filters
      */
     public static void before(Filter... filters) {
-        for (Filter filter : filters) {
-            getInstance().before(filter);
-        }
-    }
-
-    /**
-     * Maps one or many filters to be executed after any matching routes
-     *
-     * @param filters The filters
-     */
-    public static void after(Filter... filters) {
-        for (Filter filter : filters) {
-            getInstance().after(filter);
-        }
+        before(FilterPriority.normal(), filters);
     }
 
     /**
      * Maps one or many filters to be executed before any matching routes
      *
-     * @param path       the path
-     * @param acceptType the accept type
+     * @param priority The priority of the filter
+     * @param filters  The filters
+     */
+    public static void before(FilterPriority priority, Filter... filters) {
+        for (Filter filter : filters) {
+            getInstance().before(filter, priority);
+        }
+    }
+
+    /**
+     * Maps one or many filters to be executed after any matching routes. <br>
+     * The priority will be {@link FilterPriority#normal()}.
+     *
+     * @param filters The filters
+     */
+    public static void after(Filter... filters) {
+        after(FilterPriority.normal(), filters);
+    }
+
+    /**
+     * Maps one or many filters to be executed after any matching routes
+     *
+     * @param priority The priority of the filter
+     * @param filters  The filters
+     */
+    public static void after(FilterPriority priority, Filter... filters) {
+        for (Filter filter : filters) {
+            getInstance().after(filter, priority);
+        }
+    }
+
+    /**
+     * Maps one or many filters to be executed before any matching routes. <br>
+     * The priority will be {@link FilterPriority#normal()}.
+     *
+     * @param path       The path
+     * @param acceptType The accept type
      * @param filters    The filters
      */
     public static void before(String path, String acceptType, Filter... filters) {
+        before(path, acceptType, FilterPriority.normal(), filters);
+    }
+
+    /**
+     * Maps one or many filters to be executed before any matching routes
+     *
+     * @param path       The path
+     * @param acceptType The accept type
+     * @param priority   The priority of the filter
+     * @param filters    The filters
+     */
+    public static void before(String path, String acceptType, FilterPriority priority, Filter... filters) {
         for (Filter filter : filters) {
-            getInstance().before(path, acceptType, filter);
+            getInstance().before(path, acceptType, filter, priority);
         }
     }
 
 
     /**
-     * Maps one or many filters to be executed after any matching routes
+     * Maps one or many filters to be executed after any matching routes. <br>
+     * The priority will be {@link FilterPriority#normal()}.
      *
-     * @param path       the path
-     * @param acceptType the accept type
+     * @param path       The path
+     * @param acceptType The accept type
      * @param filters    The filters
      */
     public static void after(String path, String acceptType, Filter... filters) {
+        after(path, acceptType, FilterPriority.normal(), filters);
+    }
+
+    /**
+     * Maps one or many filters to be executed after any matching routes
+     *
+     * @param path       The path
+     * @param acceptType The accept type
+     * @param priority   The priority of the filter
+     * @param filters    The filters
+     */
+    public static void after(String path, String acceptType, FilterPriority priority, Filter... filters) {
         for (Filter filter : filters) {
-            getInstance().after(path, acceptType, filter);
+            getInstance().after(path, acceptType, filter, priority);
         }
+    }
+
+    /**
+     * Execute after route even if the route throws exception. <br>
+     * The priority will be {@link FilterPriority#normal()}.
+     *
+     * @param path   The path
+     * @param filter The filter
+     */
+    public static void afterAfter(String path, Filter filter) {
+        afterAfter(path, filter, FilterPriority.normal());
     }
 
     /**
      * Execute after route even if the route throws exception
      *
-     * @param path   the path
-     * @param filter the filter
+     * @param path     The path
+     * @param filter   The filter
+     * @param priority The priority of the filter
      */
-    public static void afterAfter(String path, Filter filter) {
-        getInstance().afterAfter(path, filter);
+    public static void afterAfter(String path, Filter filter, FilterPriority priority) {
+        getInstance().afterAfter(path, filter, priority);
+    }
+
+    /**
+     * Execute after any matching route even if the route throws exception. <br>
+     * The priority will be {@link FilterPriority#normal()}.
+     *
+     * @param filter The filter
+     */
+    public static void afterAfter(Filter filter) {
+        afterAfter(filter, FilterPriority.normal());
     }
 
     /**
      * Execute after any matching route even if the route throws exception
      *
-     * @param filter the filter
+     * @param filter   The filter
+     * @param priority The priority of the filter
      */
-    public static void afterAfter(Filter filter) {
-        getInstance().afterAfter(filter);
+    public static void afterAfter(Filter filter, FilterPriority priority) {
+        getInstance().afterAfter(filter, priority);
     }
 
     //////////////////////////////////////////////////
@@ -871,8 +991,9 @@ public class Spark {
      * Unmaps a particular route from the collection of those that have been previously routed.
      * Search for previously established routes using the given path and unmaps any matches that are found.
      *
-     * @param path          the route path
-     * @return              <tt>true</tt> if this is a matching route which has been previously routed
+     * @param path the route path
+     * @return <tt>true</tt> if this is a matching route which has been previously routed
+     *
      * @throws IllegalArgumentException if <tt>path</tt> is null or blank
      */
     public static boolean unmap(String path) {
@@ -884,11 +1005,12 @@ public class Spark {
      * Search for previously established routes using the given path and HTTP method, unmaps any
      * matches that are found.
      *
-     * @param path          the route path
-     * @param httpMethod    the http method
+     * @param path       the route path
+     * @param httpMethod the http method
      * @return <tt>true</tt> if this is a matching route that has been previously routed
+     *
      * @throws IllegalArgumentException if <tt>path</tt> is null or blank or if <tt>httpMethod</tt> is null, blank,
-     * or an invalid HTTP method
+     *                                  or an invalid HTTP method
      */
     public static boolean unmap(String path, String httpMethod) {
         return getInstance().unmap(path, httpMethod);
@@ -1029,6 +1151,7 @@ public class Spark {
      * Retrieves the port that Spark is listening on.
      *
      * @return The port Spark server is listening on.
+     *
      * @throws IllegalStateException when the server is not started
      */
     public static int port() {
@@ -1229,7 +1352,7 @@ public class Spark {
      * If it's already stopped, will return immediately.
      */
     public static void awaitStop() {
-    	getInstance().awaitStop();
+        getInstance().awaitStop();
     }
 
     ////////////////

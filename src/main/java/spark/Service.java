@@ -35,6 +35,7 @@ import spark.embeddedserver.jetty.websocket.WebSocketHandlerClassWrapper;
 import spark.embeddedserver.jetty.websocket.WebSocketHandlerInstanceWrapper;
 import spark.embeddedserver.jetty.websocket.WebSocketHandlerWrapper;
 import spark.route.HttpMethod;
+import spark.route.FilterPriority;
 import spark.route.Routes;
 import spark.route.ServletRoutes;
 import spark.routematch.RouteMatch;
@@ -588,9 +589,9 @@ public final class Service extends Routable {
     }
 
     @Override
-    public void addFilter(HttpMethod httpMethod, FilterImpl filter) {
+    public void addFilter(HttpMethod httpMethod, FilterImpl filter, FilterPriority priority) {
         init();
-        routes.add(httpMethod, filter.withPrefix(getPaths()));
+        routes.add(httpMethod, filter.withPrefix(getPaths()), priority);
     }
 
     @Override
